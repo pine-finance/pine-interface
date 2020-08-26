@@ -1,20 +1,20 @@
-# UniswapEX
+# Pine Finance
 
-> Limit orders on top of [Uniswap](https://uniswap.io)
+> Protocol for decentralized & automated orders.
 
-**TL;DR**: [Users](#users) can create limited orders. [Relayers](#relayers) can earn a fee executing them when the trade conditions can be fulfilled.
+**TL;DR**: [Traders](#traders) can create orders. [Relayers](#relayers) can earn a fee executing them when the trade conditions can be fulfilled.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
 - [How it works](#how-it-works)
-  - [Users](#users)
+  - [Traders](#traders)
   - [Relayers](#relayers)
 - [Next](#next)
 
 ## Introduction
 
-[UniswapEx](https://uniswapex.io) is a protocol for automated limit orders exchange on Ethereum built on top of [Uniswap](https://uniswap.io).
+[Pine Finance](https://pine.finance) is a protocol for automated and decentralized orders exchange powered by Ethereum.
 
 [Limit orders](https://www.investopedia.com/terms/l/limitorder.asp) give traders complete control over the rate at which their orders will be executed, enabling traders to automate transactions at a specific rateñ
 
@@ -22,19 +22,19 @@ It continues the base commitment to free and decentralized exchange.
 
 Every token combination is available. There **isn't** a limitation on how you can select what to buy and what to sell (Of course if it is a token living on the Ethereum network).
 
-An order at UniswapEX can only be canceled by its creator, and it can be executed if the creator receives the desired amount, making the system trustless and independent of a central entity.
+An order at Pine Finance can only be canceled by its creator, and it can be executed if the creator receives the desired amount, making the system trustless and independent of a central entity.
 
 The [smart contract](https://etherscan.io/address/#code) is validated and can be reviewed by anyone. The code hasn't been audited by a reputable third party yet, and we advise to proceed with caution.
 
 ## How it works
 
-Using [UniswapEx](https://uniswapex.io) is extremely easy due to the [Uniswap FE's](https://github.com/Uniswap/uniswap-frontend) UI.
+Using [Pine Finance](https://pine.finance) is extremely easy. We have forked the [Uniswap FE's](https://github.com/Uniswap/uniswap-frontend) UI and made a small changes.
 
-It has two main actors: [Users](#users) and [Relayers](#relayers).
+It has two main actors: [Traders](#traders) and [Relayers](#relayers).
 
-### Users
+### Traders
 
-As a user, an order can be created by sending a tradeable token to a specific counterfactual address, or by calling the contract method DepositETH. Relayers in the system will periodically check if the order can be filled, and will execute the trade when it's possible.
+As a trader, an order can be created by sending a tradeable token to a specific counterfactual address, or by calling the contract method DepositETH. Relayers in the system will periodically check if the order can be filled, and will execute the trade when it's possible.
 
 An order is composed by:
 
@@ -58,13 +58,13 @@ The next question to arise is data availability; we avoid any centralized soluti
 
 The relayers have the task of monitoring the network, looking for new orders, and executing them when the trade conditions can be fulfilled.
 
-Because of how we encode the transaction data, there is no event for detecting new token orders, forcing the relayers to search through all the ERC20 token transfers looking for the specially encoded UniswapEX transaction data.
+Because of how we encode the transaction data, there is no event for detecting new token orders, forcing the relayers to search through all the ERC20 token transfers looking for the specially encoded Pine Finance transaction data.
 
 The process of looking for those orders is one of the most costly jobs of being a relayer, and one of the things that we found out, is that it was far more easy to "listen" for other relayers when they were about to execute an order, and then copy the execution transaction, effectively "stealing" the job performed by that relayer.
 
 We fixed this issue by providing a secret in the transaction data; the relayer has to obtain this secret and sign a message containing the address that is going to use to execute the order. In this way, it can provide a proof of seeing the original data, and this proof can't be used by a front runner to copy the transaction.
 
-We made two simple examples in [python](https://github.com/UniswapEx/relayer-python) and [node](https://github.com/UniswapEx/relayer-node)
+We made two simple examples in [python](https://github.com/pine-finance/relayer-python) and [node](https://github.com/pine-finance/relayer-node)
 
 ## Next
 
@@ -74,6 +74,6 @@ If you want to add your token reach out us.
 
 - [Discord](https://discord.gg/w6JVcrg)
 - [Telegram](https://t.me/UniswapEX)
-- [Twitter](https://twitter.com/uniswapex)
+- [Twitter](https://twitter.com/pine_eth)
 
-Repo forked from [Uniswap](https://github.com/Uniswap/uniswap-frontend) repo
+Repo forked from [Uniswap](https://github.com/Uniswap/uniswap-frontend).

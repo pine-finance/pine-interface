@@ -72,7 +72,7 @@ export const CurrencySelect = styled.button`
   height: 2rem;
   border: 1px solid ${({ selected, theme }) => (selected ? theme.mercuryGray : theme.royalGreen)};
   border-radius: 2.5rem;
-  background-color: ${({ selected, theme }) => (selected ? theme.concreteGray : theme.zumthorBlue)};
+  background-color: #fafafa;
   outline: none;
   cursor: pointer;
   user-select: none;
@@ -84,10 +84,6 @@ export const CurrencySelect = styled.button`
 
   :focus {
     border: 1px solid ${({ theme }) => darken(0.1, theme.royalGreen)};
-  }
-
-  :active {
-    background-color: ${({ theme }) => theme.zumthorBlue};
   }
 `
 
