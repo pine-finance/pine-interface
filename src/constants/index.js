@@ -3,8 +3,8 @@ import { Token, ChainId, WETH } from 'uniswap-v2-sdk'
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
 
 export const ORDER_GRAPH = {
-  1: 'https://api.thegraph.com/subgraphs/name/uniswapex/uniswapex_orders',
-  4: 'https://api.thegraph.com/subgraphs/name/uniswapex/uniswapex_orders_rinkeby'
+  1: 'https://api.thegraph.com/subgraphs/name/pine-finance/pine_orders',
+  4: 'https://api.thegraph.com/subgraphs/name/pine-finance/pine_orders_rinkeby'
 }
 
 export const FACTORY_ADDRESSES = {

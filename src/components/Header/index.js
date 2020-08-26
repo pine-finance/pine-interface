@@ -58,13 +58,13 @@ export default function Header() {
       <HeaderElement>
         <Title>
           <Nod>
-            <Link id="link" href="https://uniswapex.io">
-              <span role="img" aria-label="unicorn">
-              🌲{'  '}
+            <Link id="link" href="https://pine.finance">
+              <span role="img" aria-label="pine">
+                🌲{'  '}
               </span>
             </Link>
           </Nod>
-          <Link id="link" href="https://uniswapex.io">
+          <Link id="link" href="https://pine.finance">
             <h1 id="title">Pine.finance</h1>
           </Link>
         </Title>
