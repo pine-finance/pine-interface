@@ -178,11 +178,11 @@ const ChangeAction = styled.button`
   -ms-flex-align: center;
   align-items: center;
   font-size: 1rem;
-  color: #87c122;
+  color: #000000;
   height: 2rem;
-  border: 1px solid #87c122;
+  border: 1px solid #01796f;
   border-radius: 2.5rem;
-  background-color: #262626;
+  background-color: #fafafa;
   outline: none;
   cursor: pointer;
   -webkit-user-select: none;
