@@ -121,23 +121,6 @@ export default function Footer() {
           </Link>
         </Title>
       </FooterElement>
-
-      <StyledToggle
-        checked={!isDark}
-        uncheckedIcon={
-          <EmojiToggle role="img" aria-label="moon">
-            {/* eslint-disable-line jsx-a11y/accessible-emoji */}
-            🌙️
-          </EmojiToggle>
-        }
-        checkedIcon={
-          <EmojiToggle role="img" aria-label="sun">
-            {/* eslint-disable-line jsx-a11y/accessible-emoji */}
-            {'☀️'}
-          </EmojiToggle>
-        }
-        onChange={() => toggleDarkMode()}
-      />
     </FooterFrame>
   )
 }

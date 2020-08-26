@@ -101,5 +101,7 @@ export function useDarkModeManager() {
     updateKey(DARK_MODE, !isDarkMode)
   }, [updateKey, isDarkMode])
 
-  return [state[DARK_MODE], toggleDarkMode]
+  // TODO: Remove all dark mode related logic
+  // or re-enable dark mode
+  return [false, toggleDarkMode]
 }
