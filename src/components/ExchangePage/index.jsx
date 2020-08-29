@@ -381,14 +381,13 @@ async function fetchUserOrders(account, chainId) {
       status
     }
   }`
-
-  const res = await fetch(ORDER_GRAPH[chainId], {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { owner: account.toLowerCase() } })
-  }).catch(console.error)
-
   try {
+    const res = await fetch(ORDER_GRAPH[chainId], {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: { owner: account.toLowerCase() } })
+    })
+
     const { data } = await res.json()
     return {
       allOrders: [],
