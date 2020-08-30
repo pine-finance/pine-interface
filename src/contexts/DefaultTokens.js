@@ -34,6 +34,13 @@ export const DEFAULT_TOKENS_EXTRA = [
     chainId: 4,
     logoURI:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x03fB52D4eE633ab0D06C833E32EFdd8D388f3E6a/logo.png'
+  },
+  {
+    name: 'SushiToken',
+    symbol: 'SUSHI',
+    address: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
+    decimals: 18,
+    chainId: 1
   }
 ]
 
