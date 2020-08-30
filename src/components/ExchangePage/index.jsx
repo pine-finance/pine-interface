@@ -707,7 +707,8 @@ export default function ExchangePage({ initialCurrency }) {
   const exchangeRate = marketRate
   const exchangeRateInverted = flipRate(exchangeRate)
 
-  const rateDelta = exchangeRateDiff(rateOp === RATE_OP_DIV ? inverseRate : rateRaw, exchangeRate)
+  const rateDelta = rateOp === RATE_OP_DIV ? exchangeRateDiff(inverseRate, exchangeRateInverted) : exchangeRateDiff(rateRaw, exchangeRate)
+
   const limitSlippage = ethers.utils
     .bigNumberify(SLIPPAGE_WARNING)
     .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(16)))
