@@ -423,7 +423,7 @@ function CurrencySelectModal({ isOpen, onDismiss, onTokenSelect, allBalances }) 
   const { t } = useTranslation()
 
   const [searchQuery, setSearchQuery] = useState('')
-  const { exchangeAddress } = useTokenDetails(searchQuery)
+  const { name } = useTokenDetails(searchQuery)
 
   const allTokens = useAllTokenDetails()
 
@@ -531,18 +531,8 @@ function CurrencySelectModal({ isOpen, onDismiss, onTokenSelect, allBalances }) 
   }
 
   function renderTokenList() {
-    if (isAddress(searchQuery) && exchangeAddress === undefined) {
+    if (isAddress(searchQuery) && name === undefined) {
       return <TokenModalInfo>Searching for Exchange...</TokenModalInfo>
-    }
-    if (isAddress(searchQuery) && exchangeAddress === ethers.constants.AddressZero) {
-      return (
-        <>
-          <TokenModalInfo>{t('noExchange')}</TokenModalInfo>
-          <TokenModalInfo>
-            <Link to={`/create-exchange/${searchQuery}`}>{t('createExchange')}</Link>
-          </TokenModalInfo>
-        </>
-      )
     }
     if (!filteredTokenList.length) {
       return <TokenModalInfo>{t('noExchange')}</TokenModalInfo>
