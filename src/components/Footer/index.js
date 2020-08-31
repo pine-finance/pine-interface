@@ -72,7 +72,7 @@ export default function Footer() {
             id="link"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://github.com/UniswapEx/exchange#how-it-works"
+            href="https://medium.com/@pine_eth/pine-finance-an-amm-orders-engine-525fe1f1b1eb"
           >
             <h1 id="title">About</h1>
           </Link>

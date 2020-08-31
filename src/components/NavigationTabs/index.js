@@ -80,7 +80,7 @@ function NavigationTabs({ location: { pathname }, history }) {
             💀
           </span>{' '}
           {t('betaWarning')}
-          <Link id="link" href="https://github.com/UniswapEx/exchange#how-it-works" className="how-it-works">
+          <Link id="link" href="https://medium.com/@pine_eth/pine-finance-an-amm-orders-engine-525fe1f1b1eb" className="how-it-works">
             {t('seeHowItWorks')}
           </Link>
         </BetaMessage>
