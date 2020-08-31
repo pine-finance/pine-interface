@@ -145,6 +145,10 @@ export async function getTokenName(tokenAddress, library) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`)
   }
 
+  if (tokenAddress.toLowerCase() === "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359") {
+    return "Sai Stablecoin"
+  }
+
   return getContract(tokenAddress, ERC20_ABI, library)
     .name()
     .catch(() =>
@@ -162,6 +166,10 @@ export async function getTokenName(tokenAddress, library) {
 export async function getTokenSymbol(tokenAddress, library) {
   if (!isAddress(tokenAddress)) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`)
+  }
+
+  if (tokenAddress.toLowerCase() === "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359") {
+    return "SAI"
   }
 
   return getContract(tokenAddress, ERC20_ABI, library)
