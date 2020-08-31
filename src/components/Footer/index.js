@@ -76,11 +76,14 @@ export default function Footer() {
           >
             <h1 id="title">About</h1>
           </Link>
-          <Link id="link" rel="noopener noreferrer" target="_blank" href="https://github.com/UniswapEx/exchange">
+          <Link id="link" rel="noopener noreferrer" target="_blank" href="https://github.com/pine-finance/">
             <h1 id="title">Code</h1>
           </Link>
+          <Link id="link" rel="noopener noreferrer" target="_blank" href="https://etherscan.io/address/0xD412054ccA18A61278ceD6F674A526A6940eBd84">
+            <h1 id="title">Contract</h1>
+          </Link>
           <Link id="link" rel="noopener noreferrer" target="_blank" href="https://v1.uniswapex.io/">
-            <h1 id="title">UniswapEx V1</h1>
+            <h1 id="title">UniswapEx</h1>
           </Link>
           <Link id="link" rel="noopener noreferrer" target="_blank" href="https://gitcoin.co/grants/765/uniswapex-v2">
             <h1 id="title">Donate ❤</h1>
