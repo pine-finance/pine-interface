@@ -36,7 +36,7 @@
 
 [Pine Finance](https://pine.finance) is a protocol for automated and decentralized orders exchange powered by Ethereum.
 
-[Limit orders](https://www.investopedia.com/terms/l/limitorder.asp) give traders complete control over the rate at which their orders will be executed, enabling traders to automate transactions at a specific rateñ
+[Limit orders](https://www.investopedia.com/terms/l/limitorder.asp) give traders complete control over the rate at which their orders will be executed, enabling traders to automate transactions at a specific rate.
 
 It continues the base commitment to free and decentralized exchange.
 
