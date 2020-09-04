@@ -66,7 +66,7 @@ The first thing they do is to check how much _output_, in this case ETH, they wi
 desired_output <= (trade_output - execution_cost)
 ```
 
-`execution_cost` depends on the [Gas Price](https://etherscan.io/gastracker). Higher gas prices, higher `execution_cost`.
+`execution_cost` depends on the [Gas Price](https://etherscan.io/gastracker). Higher gas prices, higher `execution_cost`. You can read more about Gas Price [here.](https://www.investopedia.com/terms/g/gas-ethereum.asp#:~:text=On%20the%20ethereum%20blockchain%2C%20gas,with%20are%20worth%200.000000001%20ether)
 
 Finally, _relayers_ can charge a fee for executing the order (`relayer_fee`). The final formula will be:
 
