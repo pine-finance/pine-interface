@@ -60,10 +60,10 @@ The _user_ creates a limit order at [pine.finance](https://pine.finance) by send
 
 Once the transaction is confirmed, _relayers_ will start checking if the order can be fulfilled. _Reyalers_ can have their own strategy on how to execute an order. Pine, has a minimum of two relayers running 24/7 with a basic strategy.
 
-The first thing they do is to check how much _output_, in this case ETH, they will get in exchange for `400 DAI` (`trade_output`). Then, if it is higher or equal than `1.6 ETH` (which is what the _user_ set as the minimum output) they check how much will cost to send the transaction to do the trade (`execution cost`). Once _relayers_ get the `execution_cost`, they check if they can still achieve the output defined by the _user_: `desired_output >= (trade_output - execution_cost)`.
+The first thing they do is to check how much _output_, in this case ETH, they will get in exchange for `400 DAI` (`trade_output`). Then, if it is higher or equal than `1.6 ETH` (which is what the _user_ set as the minimum output) they check how much will cost to send the transaction to do the trade (`execution cost`). Once _relayers_ get the `execution_cost`, they check if they can still achieve the output defined by the _user_: `desired_output <= (trade_output - execution_cost)`.
 
 Finally, _relayers_ can charge a fee for executing the order (`relayer_fee`). The final formula will be:
-`desired_output >= (trade_output - execution_cost - relayer_fee)`.
+`desired_output <= (trade_output - execution_cost - relayer_fee)`.
 
 _Even the math can match, have in mind that if the amount to trade is high, a price impact will occur depending on the liquidity of the pool used._
 
