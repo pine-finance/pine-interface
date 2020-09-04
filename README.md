@@ -50,22 +50,43 @@ The [smart contract](https://etherscan.io/address/0xd412054cca18a61278ced6f674a5
 
 ## Interaction and order fulfillment example
 
-Imagine the current rate of DAI -> ETH is `0,003`. So, based on the market price if the _user_ trades `400 DAI` will receive `1.2 ETH`. **BUT**, a _user_ wants to sell `400 DAI` in exchange for `1.6 ETH` (`desired_output`).
+Imagine the current rate of DAI -> ETH is `0.003`. So, based on the market price if the _user_ trades `400 DAI` will receive `1.2 ETH`. **BUT**, a _user_ wants to sell `400 DAI` in exchange for `1.6 ETH` (`desired_output`).
 
 The _user_ creates a limit order at [pine.finance](https://pine.finance) by sending a transaction with the following values:
 
-- **input**: 400 DAI
-- **rate**: 0,004 DAI-ETH
-- **output**: 1.6 ETH
+- **Input**: 400 DAI
+- **Rate**: 0.004 DAI-ETH
+- **Output**: 1.6 ETH
 
 Once the transaction is confirmed, _relayers_ will start checking if the order can be fulfilled. _Reyalers_ can have their own strategy on how to execute an order. Pine, has a minimum of two relayers running 24/7 with a basic strategy.
 
-The first thing they do is to check how much _output_, in this case ETH, they will get in exchange for `400 DAI` (`trade_output`). Then, if it is higher or equal than `1.6 ETH` (which is what the _user_ set as the minimum output) they check how much will cost to send the transaction to do the trade (`execution cost`). Once _relayers_ get the `execution_cost`, they check if they can still achieve the output defined by the _user_: `desired_output <= (trade_output - execution_cost)`.
+The first thing they do is to check how much _output_, in this case ETH, they will get in exchange for `400 DAI` (`trade_output`). Then, if it is higher or equal than `1.6 ETH` (which is what the _user_ set as the minimum output) they check how much will cost to send the transaction to do the trade (`execution cost`). Once _relayers_ get the `execution_cost`, they check if they can still achieve the output defined by the _user_:
+
+```
+desired_output <= (trade_output - execution_cost)
+```
+
+`execution_cost` depends on the [Gas Price](https://etherscan.io/gastracker). Higher gas prices, higher `execution_cost`.
 
 Finally, _relayers_ can charge a fee for executing the order (`relayer_fee`). The final formula will be:
-`desired_output <= (trade_output - execution_cost - relayer_fee)`.
+
+```
+desired_output <= (trade_output - execution_cost - relayer_fee)
+```
 
 _Even the math can match, have in mind that if the amount to trade is high, a price impact will occur depending on the liquidity of the pool used._
+
+To continue with real numbers, if the `execution_cost` is 0.04 ETH and the `relayers_fee` is 0.006:
+
+```
+1.6 ETH <= trade_output - 0.04 ETH - 0.006 ETH
+
+1.6 ETH <= trade_output - 0.046 ETH
+
+1.6 ETH + 0.046 ETH <= trade_output
+
+1.646 ETH <= trade_output // Final rate 0.004115 for execution
+```
 
 If you want to add your token reach out us.
 
