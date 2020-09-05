@@ -1,6 +1,9 @@
 import { Token, ChainId, WETH } from 'uniswap-v2-sdk'
 
-import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
+// @TODO: we should test fortmatic, portis, walletconnect, walletlink before adding
+import { injected } from '../connectors'
+
+export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export const ORDER_GRAPH = {
   1: 'https://api.thegraph.com/subgraphs/name/pine-finance/pine_orders',

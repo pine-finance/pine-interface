@@ -1,0 +1,20 @@
+.order.executed {
+  border: 1px solid #01796f;
+}
+
+.order.cancelled {
+  border: 1px solid #ee4343;
+}
+
+.order-link {
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.order.executed .order-link {
+  color: #01796f;
+}
+
+.order.cancelled .order-link {
+  color: #ee4343;
+}
