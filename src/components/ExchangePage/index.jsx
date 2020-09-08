@@ -1,19 +1,17 @@
 import React, { useState, useReducer, useEffect } from 'react'
 import ReactGA from 'react-ga'
-
 import { useTranslation } from 'react-i18next'
 import { useWeb3React } from '@web3-react/core'
 import * as ls from 'local-storage'
-
-import { isAddress, getEtherscanLink } from '../../utils'
-
 import { ethers } from 'ethers'
 import styled from 'styled-components'
 
+import { isAddress } from '../../utils'
 import { Button } from '../../theme'
-import CurrencyInputPanel, { CurrencySelect, Aligner, StyledTokenName } from '../CurrencyInputPanel'
+import CurrencyInputPanel from '../CurrencyInputPanel'
+import { OrderCard } from '../OrderCard'
+import { OrdersHistory } from '../OrdersHistory'
 import OversizedPanel from '../OversizedPanel'
-import TokenLogo from '../TokenLogo'
 import ArrowDown from '../../assets/svg/SVGArrowDown'
 import Circle from '../../assets/images/circle.svg'
 import SVGClose from '../../assets/svg/SVGClose'
@@ -24,17 +22,16 @@ import { Spinner } from '../../theme'
 import { useTokenDetails } from '../../contexts/Tokens'
 import {
   ACTION_PLACE_ORDER,
-  ACTION_CANCEL_ORDER,
   useAllPendingOrders,
   useTransactionAdder,
-  useOrderPendingState,
   useAllPendingCancelOrders
 } from '../../contexts/Transactions'
 import { useAddressBalance } from '../../contexts/Balances'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
 import { useAddressAllowance } from '../../contexts/Allowances'
 import { useTradeExactIn } from '../../hooks/trade'
-import { LIMIT_ORDER_MODULE_ADDRESSES, ORDER_GRAPH } from '../../constants'
+import { ETH_ADDRESS, LIMIT_ORDER_MODULE_ADDRESSES, ORDER_GRAPH } from '../../constants'
+import { getExchangeRate } from '../../utils/rate'
 
 import './ExchangePage.css'
 
@@ -55,9 +52,6 @@ const SLIPPAGE_WARNING = '30' // [30+%
 const RATE_OP_MULT = 'x'
 const RATE_OP_DIV = '/'
 
-// Addresses
-const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-
 const DownArrowBackground = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   justify-content: center;
@@ -72,18 +66,6 @@ const DownArrow = styled(WrappedArrowDown)`
   position: relative;
   padding: 0.875rem;
   cursor: ${({ clickable }) => clickable && 'pointer'};
-`
-
-const Spacer = styled.div`
-  flex: 1 1 auto;
-`
-
-const WrappedArrowRight = ({ clickable, active, ...rest }) => <ArrowDown {...rest} transform="rotate(-90)" />
-const RightArrow = styled(WrappedArrowRight)`
-  color: ${({ theme }) => theme.royalGreen};
-  width: 0.625rem;
-  height: 0.625rem;
-  position: relative;
 `
 
 const WrappedRateIcon = ({ RateIconSVG, clickable, active, icon, ...rest }) => <RateIconSVG {...rest} />
@@ -123,30 +105,6 @@ const Flex = styled.div`
   button {
     max-width: 20rem;
   }
-`
-
-const CancelButton = styled.div`
-  color: ${({ selected, theme }) => (selected ? theme.textColor : theme.textColor)};
-  padding: 0px 6px 0px 6px;
-  font-size: 0.85rem;
-`
-
-const Order = styled.div`
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-flow: column nowrap;
-  -ms-flex-flow: column nowrap;
-  flex-flow: column nowrap;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
-  position: relative;
-  border-radius: 1.25rem;
-  z-index: 1;
-  padding: 20px;
-  margin-bottom: 40px;
-  border: ${({ theme }) => `1px solid ${theme.mercuryGray}`};
-  background-color: ${({ theme }) => theme.concreteGray};
 `
 
 const SpinnerWrapper = styled(Spinner)`
@@ -285,33 +243,6 @@ function swapStateReducer(state, action) {
       return getInitialSwapState()
     }
   }
-}
-
-function getExchangeRate(inputValue, inputDecimals, outputValue, outputDecimals, invert = false) {
-  try {
-    if (
-      inputValue &&
-      (inputDecimals || inputDecimals === 0) &&
-      outputValue &&
-      (outputDecimals || outputDecimals === 0)
-    ) {
-      const factor = ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))
-
-      if (invert) {
-        return inputValue
-          .mul(factor)
-          .div(outputValue)
-          .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(outputDecimals)))
-          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(inputDecimals)))
-      } else {
-        return outputValue
-          .mul(factor)
-          .div(inputValue)
-          .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(inputDecimals)))
-          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(outputDecimals)))
-      }
-    }
-  } catch {}
 }
 
 function applyExchangeRateTo(inputValue, exchangeRate, inputDecimals, outputDecimals, invert = false) {
@@ -707,7 +638,10 @@ export default function ExchangePage({ initialCurrency }) {
   const exchangeRate = marketRate
   const exchangeRateInverted = flipRate(exchangeRate)
 
-  const rateDelta = rateOp === RATE_OP_DIV ? exchangeRateDiff(inverseRate, exchangeRateInverted) : exchangeRateDiff(rateRaw, exchangeRate)
+  const rateDelta =
+    rateOp === RATE_OP_DIV
+      ? exchangeRateDiff(inverseRate, exchangeRateInverted)
+      : exchangeRateDiff(rateRaw, exchangeRate)
 
   const limitSlippage = ethers.utils
     .bigNumberify(SLIPPAGE_WARNING)
@@ -948,118 +882,31 @@ export default function ExchangePage({ initialCurrency }) {
           {t('highSlippageWarning')}
         </div>
       )}
-      <div>
+      <>
         {account && (
           <>
-            <p className="orders-title">{`${t('Orders')} ${orders.length > 0 ? `(${orders.length})` : ''}`}</p>
-            {loading && (
-              <>
-                <SpinnerWrapper src={Circle} alt="loader" /> Loading ...
-                <br />
-                <br />
-              </>
-            )}
-            {orders.length === 0 && !loading && <p>{t('noOpenOrders')}</p>}
-            {
-              <div>
-                {orders.map(order => (
-                  <OrderCard key={order.witness} data={{ order: order }} />
-                ))}
-              </div>
-            }
+            <>
+              <p className="orders-title">{`${t('Orders')} ${orders.length > 0 ? `(${orders.length})` : ''}`}</p>
+              {loading && (
+                <>
+                  <SpinnerWrapper src={Circle} alt="loader" /> Loading ...
+                  <br />
+                  <br />
+                </>
+              )}
+              {orders.length === 0 && !loading && <p>{t('noOpenOrders')}</p>}
+              {
+                <div>
+                  {orders.map(order => (
+                    <OrderCard key={order.witness} data={{ order: order }} />
+                  ))}
+                </div>
+              }
+            </>
+            <OrdersHistory />
           </>
         )}
-      </div>
+      </>
     </>
-  )
-}
-
-function OrderCard(props) {
-  const { t } = useTranslation()
-  const { chainId } = useWeb3React()
-
-  const order = props.data.order
-
-  const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.inputToken
-  const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.outputToken
-
-  const { symbol: fromSymbol, decimals: fromDecimals } = useTokenDetails(inputToken)
-  const { symbol: toSymbol, decimals: toDecimals } = useTokenDetails(outputToken)
-  const { state, last } = useOrderPendingState(order)
-
-  const canceling = state === ACTION_CANCEL_ORDER
-  const pending = state === ACTION_PLACE_ORDER
-
-  const uniswapEXContract = useUniswapExContract()
-  const addTransaction = useTransactionAdder()
-
-  async function onCancel(order, pending) {
-    const abiCoder = new ethers.utils.AbiCoder()
-
-    const { module, inputToken, outputToken, minReturn, owner, witness } = order
-    uniswapEXContract
-      .cancelOrder(
-        module,
-        inputToken,
-        owner,
-        witness,
-        abiCoder.encode(['address', 'uint256'], [outputToken, minReturn]),
-        {
-          gasLimit: pending ? 400000 : undefined
-        }
-      )
-      .then(response => {
-        addTransaction(response, { action: ACTION_CANCEL_ORDER, order: order })
-      })
-  }
-
-  const explorerLink = last ? getEtherscanLink(chainId, last.response.hash, 'transaction') : undefined
-  const inputAmount = ethers.utils.bigNumberify(order.inputAmount !== '0' ? order.inputAmount : order.creationAmount)
-  const minReturn = ethers.utils.bigNumberify(order.minReturn)
-
-  const rateFromTo = getExchangeRate(inputAmount, fromDecimals, minReturn, toDecimals, false)
-  const rateToFrom = getExchangeRate(inputAmount, fromDecimals, minReturn, toDecimals, true)
-
-  return (
-    <Order className="order">
-      <div className="tokens">
-        <CurrencySelect selected={true}>
-          <Aligner>
-            {<TokenLogo address={inputToken} />}
-            {<StyledTokenName>{fromSymbol}</StyledTokenName>}
-          </Aligner>
-        </CurrencySelect>
-        <Aligner>
-          <RightArrow transform="rotate(-90)" />
-        </Aligner>
-        <CurrencySelect selected={true}>
-          <Aligner>
-            {<TokenLogo address={outputToken} />}
-            {<StyledTokenName>{toSymbol}</StyledTokenName>}
-          </Aligner>
-        </CurrencySelect>
-        <Spacer />
-        <CurrencySelect selected={true} disabled={canceling} onClick={() => onCancel(order, pending)}>
-          <CancelButton>{canceling ? 'Cancelling ...' : t('cancel')}</CancelButton>
-        </CurrencySelect>
-      </div>
-      <p>
-        {`Sell: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
-      </p>
-      <p>
-        {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
-      </p>
-      <p>
-        {`Rate: ${amountFormatter(rateFromTo, 18, 2)}`} {fromSymbol}/{toSymbol} - {amountFormatter(rateToFrom, 18, 2)}{' '}
-        {toSymbol}/{fromSymbol}
-      </p>
-      <p>
-        {last && (
-          <a rel="noopener noreferrer" target="_blank" href={explorerLink}>
-            Pending transaction...
-          </a>
-        )}
-      </p>
-    </Order>
   )
 }
