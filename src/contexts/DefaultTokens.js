@@ -41,6 +41,13 @@ export const DEFAULT_TOKENS_EXTRA = [
     address: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
     decimals: 18,
     chainId: 1
+  },
+  {
+    name: 'Tether USD',
+    symbol: 'USDT',
+    address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    decimals: 6,
+    chainId: 1
   }
 ]
 
