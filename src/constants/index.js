@@ -1,7 +1,7 @@
 import { Token, ChainId, WETH } from 'uniswap-v2-sdk'
 
 // @TODO: we should test fortmatic, portis, walletconnect, walletlink before adding
-import { injected } from '../connectors'
+import { injected, fortmatic } from '../connectors'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
@@ -115,15 +115,15 @@ export const SUPPORTED_WALLETS = {
     //   mobile: true,
     //   mobileOnly: true
     // },
-    // FORTMATIC: {
-    //   connector: fortmatic,
-    //   name: 'Fortmatic',
-    //   iconName: 'fortmaticIcon.png',
-    //   description: 'Login using Fortmatic hosted wallet',
-    //   href: null,
-    //   color: '#6748FF',
-    //   mobile: true
-    // },
+    FORTMATIC: {
+      connector: fortmatic,
+      name: 'Fortmatic',
+      iconName: 'fortmaticIcon.png',
+      description: 'Login using Fortmatic hosted wallet',
+      href: null,
+      color: '#6748FF',
+      mobile: true
+    }
     // Portis: {
     //   connector: portis,
     //   name: 'Portis',
