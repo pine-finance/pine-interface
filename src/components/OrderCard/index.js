@@ -148,8 +148,8 @@ export function OrderCard(props) {
             {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
           </p>
           <p>
-            {`Rate: ${amountFormatter(rateFromTo, 18, 2)}`} {fromSymbol}/{toSymbol} -{' '}
-            {amountFormatter(rateToFrom, 18, 2)} {toSymbol}/{fromSymbol}
+            {`Rate: ${amountFormatter(rateFromTo, 18, 6)}`} {fromSymbol}/{toSymbol} -{' '}
+            {amountFormatter(rateToFrom, 18, 6)} {toSymbol}/{fromSymbol}
           </p>
           <p>
             {last && (
