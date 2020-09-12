@@ -7,16 +7,36 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [How it works](#how-it-works)
-  - [Traders](#traders)
-  - [Relayers](#relayers)
-- [Next](#next)
+- [Contracts](#contracts)
+- [Interaction & Order Fulfillment](#interaction-and-order-fulfillment-example)
+
+## Contracts
+
+### Mainnet
+
+- [PineCore](https://etherscan.io/address/0xd412054cca18a61278ced6f674a526a6940ebd84#code)
+
+- [LimitOrdersModule](https://etherscan.io/address/0x037fc8e71445910e1e0bbb2a0896d5e9a7485318#code)
+
+- [UniswapV1Handler](https://etherscan.io/address/0xf48f47c959951b1a8b0691159a75a035dfed2d1d#code)
+
+- [UniswapV2Handler](https://etherscan.io/address/0x842a8dea50478814e2bfaff9e5a27dc0d1fdd37c#code)
+
+### Rinkeby
+
+- [PineCore](https://rinkeby.etherscan.io/address/0xd412054cca18a61278ced6f674a526a6940ebd84#code)
+
+- [LimitOrdersModule](https://rinkeby.etherscan.io/address/0x037fc8e71445910e1e0bbb2a0896d5e9a7485318#code)
+
+- [UniswapV1Handler](https://rinkeby.etherscan.io/address/0x9d8453c495ac68cf717179d5ad9235f5eebf387d#code)
+
+- [UniswapV2Handler](https://rinkeby.etherscan.io/address/0xbf95dd8dfbccdba150b4bc3d227a80c53acd3e0f#code)
 
 ## Introduction
 
 [Pine Finance](https://pine.finance) is a protocol for automated and decentralized orders exchange powered by Ethereum.
 
-[Limit orders](https://www.investopedia.com/terms/l/limitorder.asp) give traders complete control over the rate at which their orders will be executed, enabling traders to automate transactions at a specific rateñ
+[Limit orders](https://www.investopedia.com/terms/l/limitorder.asp) give traders complete control over the rate at which their orders will be executed, enabling traders to automate transactions at a specific rate.
 
 It continues the base commitment to free and decentralized exchange.
 
@@ -24,51 +44,49 @@ Every token combination is available. There **isn't** a limitation on how you ca
 
 An order at Pine Finance can only be canceled by its creator, and it can be executed if the creator receives the desired amount, making the system trustless and independent of a central entity.
 
-The [smart contract](https://etherscan.io/address/#code) is validated and can be reviewed by anyone. The code hasn't been audited by a reputable third party yet, and we advise to proceed with caution.
+The [smart contract](https://etherscan.io/address/0xd412054cca18a61278ced6f674a526a6940ebd84#code) is validated and can be reviewed by anyone. The code hasn't been audited by a reputable third party yet, and we advise to proceed with caution.
 
-## How it works
+[More info of how it works](https://medium.com/@pine_eth/pine-finance-an-amm-orders-engine-525fe1f1b1eb)
 
-Using [Pine Finance](https://pine.finance) is extremely easy. We have forked the [Uniswap FE's](https://github.com/Uniswap/uniswap-frontend) UI and made a small changes.
+## Interaction and order fulfillment example
 
-It has two main actors: [Traders](#traders) and [Relayers](#relayers).
+Imagine the current rate of DAI -> ETH is `0.003`. So, based on the market price if the _user_ trades `400 DAI` will receive `1.2 ETH`. **BUT**, a _user_ wants to sell `400 DAI` in exchange for `1.6 ETH` (`desired_output`).
 
-### Traders
+The _user_ creates a limit order at [pine.finance](https://pine.finance) by sending a transaction with the following values:
 
-As a trader, an order can be created by sending a tradeable token to a specific counterfactual address, or by calling the contract method DepositETH. Relayers in the system will periodically check if the order can be filled, and will execute the trade when it's possible.
+- **Input**: 400 DAI
+- **Rate**: 0.004 DAI-ETH
+- **Output**: 1.6 ETH
 
-An order is composed by:
+Once the transaction is confirmed, _relayers_ will start checking if the order can be fulfilled. _Reyalers_ can have their own strategy on how to execute an order. Pine, has a minimum of two relayers running 24/7 with a basic strategy.
 
-| Param     | Description                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| fromToken | Token used to buy. For ETH it is the E-address.                        |
-| toToken   | Token to be bought. For ETH it is the E-address.                       |
-| minReturn | Mininum amount of toToken to buy.                                      |
-| owner     | Owner of the order                                                     |
-| witness   | Ephemeral address as salt used to avoid relayer-front-runner execution |
+The first thing they do is to check how much _output_, in this case ETH, they will get in exchange for `400 DAI` (`trade_output`). Then, if it is higher or equal than `1.6 ETH` (which is what the _user_ set as the minimum output) they check how much will cost to send the transaction to do the trade (`execution cost`). Once _relayers_ get the `execution_cost`, they check if they can still achieve the output defined by the _user_:
 
-Every order has a fee which is the _payment_ to the relayer for performing the trade. This fee should be higher than the transaction cost of executing the order. So far, we set a fixed fee of 0.006 ETH but we expect to have it configurable when placing the order. This fee represents sending the order execution transaction by the [relayer](#relayers) with 20 GWEI.
+```
+desired_output <= (trade_output - execution_cost)
+```
 
-One of the biggest challenges when working with ERC20 tokens is dealing with the approve and transferFrom pattern; it confuses the user, makes transacting more expensive, and it's often used with "unlimited" authorizations, forcing the user to trust the contract.
+`execution_cost` depends on the [Gas Price](https://etherscan.io/gastracker). Higher gas prices, higher `execution_cost`. You can read more about Gas Price [here.](https://www.investopedia.com/terms/g/gas-ethereum.asp#:~:text=On%20the%20ethereum%20blockchain%2C%20gas,with%20are%20worth%200.000000001%20ether)
 
-We built a solution to avoid the approve and transferFrom, that works with almost all existing ERC20 tokens, we use a counterfactual contract address deployed using CREATE2 to encode the unique trading conditions signature, so the only thing that the user needs to do to create an order is sent the tokens to this given address.
+Finally, _relayers_ can charge a fee for executing the order (`relayer_fee`). The final formula will be:
 
-The next question to arise is data availability; we avoid any centralized solution by appending the data required to execute or cancel the order after the transaction data of the token transfer. The ERC20 contract ignores this extra data most of the time but ensures the data availability needed to be able to execute or cancel the trade.
+```
+desired_output <= (trade_output - execution_cost - relayer_fee)
+```
 
-### Relayer
+_Even the math can match, have in mind that if the amount to trade is high, a price impact will occur depending on the liquidity of the pool used._
 
-The relayers have the task of monitoring the network, looking for new orders, and executing them when the trade conditions can be fulfilled.
+To continue with real numbers, if the `execution_cost` is 0.04 ETH and the `relayers_fee` is 0.006:
 
-Because of how we encode the transaction data, there is no event for detecting new token orders, forcing the relayers to search through all the ERC20 token transfers looking for the specially encoded Pine Finance transaction data.
+```
+1.6 ETH <= trade_output - 0.04 ETH - 0.006 ETH
 
-The process of looking for those orders is one of the most costly jobs of being a relayer, and one of the things that we found out, is that it was far more easy to "listen" for other relayers when they were about to execute an order, and then copy the execution transaction, effectively "stealing" the job performed by that relayer.
+1.6 ETH <= trade_output - 0.046 ETH
 
-We fixed this issue by providing a secret in the transaction data; the relayer has to obtain this secret and sign a message containing the address that is going to use to execute the order. In this way, it can provide a proof of seeing the original data, and this proof can't be used by a front runner to copy the transaction.
+1.6 ETH + 0.046 ETH <= trade_output
 
-We made two simple examples in [python](https://github.com/pine-finance/relayer-python) and [node](https://github.com/pine-finance/relayer-node)
-
-## Next
-
-- Ability for the user to set the fee.
+1.646 ETH <= trade_output // Final rate 0.004115 for execution
+```
 
 If you want to add your token reach out us.
 
@@ -76,4 +94,4 @@ If you want to add your token reach out us.
 - [Telegram](https://t.me/UniswapEX)
 - [Twitter](https://twitter.com/pine_eth)
 
-Repo forked from [Uniswap](https://github.com/Uniswap/uniswap-frontend).
+Repo forked and modified from [Uniswap](https://github.com/Uniswap/uniswap-frontend).

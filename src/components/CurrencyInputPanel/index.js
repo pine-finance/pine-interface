@@ -1,5 +1,4 @@
 import React, { useState, useRef, useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ethers } from 'ethers'
 import { BigNumber } from '@uniswap/sdk'
@@ -456,6 +455,7 @@ function CurrencySelectModal({ isOpen, onDismiss, onTokenSelect, allBalances }) 
 
   const tokenList = useMemo(() => {
     return Object.keys(allTokens)
+      .filter(k => allTokens[k].symbol)
       .sort((a, b) => {
         const aSymbol = allTokens[a].symbol.toLowerCase()
         const bSymbol = allTokens[b].symbol.toLowerCase()

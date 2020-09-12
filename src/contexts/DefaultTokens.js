@@ -44,6 +44,5 @@ export const DEFAULT_TOKENS_EXTRA = [
   }
 ]
 
-export const DISABLED_TOKENS = {
-  USDT: true
-}
+export const DISABLED_TOKENS = {}
+

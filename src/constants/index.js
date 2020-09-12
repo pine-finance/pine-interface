@@ -1,6 +1,9 @@
 import { Token, ChainId, WETH } from 'uniswap-v2-sdk'
 
-import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
+// @TODO: we should test fortmatic, portis, walletconnect, walletlink before adding
+import { injected, fortmatic } from '../connectors'
+
+export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export const ORDER_GRAPH = {
   1: 'https://api.thegraph.com/subgraphs/name/pine-finance/pine_orders',
@@ -112,15 +115,15 @@ export const SUPPORTED_WALLETS = {
     //   mobile: true,
     //   mobileOnly: true
     // },
-    // FORTMATIC: {
-    //   connector: fortmatic,
-    //   name: 'Fortmatic',
-    //   iconName: 'fortmaticIcon.png',
-    //   description: 'Login using Fortmatic hosted wallet',
-    //   href: null,
-    //   color: '#6748FF',
-    //   mobile: true
-    // },
+    FORTMATIC: {
+      connector: fortmatic,
+      name: 'Fortmatic',
+      iconName: 'fortmaticIcon.png',
+      description: 'Login using Fortmatic hosted wallet',
+      href: null,
+      color: '#6748FF',
+      mobile: true
+    }
     // Portis: {
     //   connector: portis,
     //   name: 'Portis',
