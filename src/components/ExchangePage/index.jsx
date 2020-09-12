@@ -564,7 +564,7 @@ export default function ExchangePage({ initialCurrency }) {
 
   const inputValueParsed = independentField === INPUT ? independentValueParsed : inputValue
   const inputValueFormatted =
-    independentField === INPUT ? independentValue : amountFormatter(inputValue, inputDecimals, Math.min(4, 18), false)
+    independentField === INPUT ? independentValue : amountFormatter(inputValue, inputDecimals, inputDecimals, false)
 
   let outputValueFormatted
   let outputValueParsed
@@ -671,7 +671,7 @@ export default function ExchangePage({ initialCurrency }) {
   const [showUnlock, setShowUnlock] = useState(false)
   useEffect(() => {
     const inputValueCalculation = inputValueParsed
-    if (inputBalance && (inputAllowance || inputCurrency === 'ETH') && inputValueCalculation) {
+    if (inputBalance && inputValueCalculation) {
       if (inputBalance.lt(inputValueCalculation)) {
         setInputError(t('insufficientBalance'))
       } else {
