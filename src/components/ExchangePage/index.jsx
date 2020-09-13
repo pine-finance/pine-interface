@@ -325,16 +325,13 @@ export default function ExchangePage({ initialCurrency }) {
 
   // declare/get parsed and formatted versions of input/output values
   const [independentValueParsed, setIndependentValueParsed] = useState()
-
-  const [savedRate, setSavedRate] = useState()
-
   const inputValueParsed = independentField === INPUT ? independentValueParsed : inputValue
   const inputValueFormatted =
     independentField === INPUT ? independentValue : amountFormatter(inputValue, inputDecimals, inputDecimals, false)
 
   let outputValueFormatted
   let outputValueParsed
-  let rateRaw = savedRate ? safeParseUnits(savedRate, 18) : ''
+  let rateRaw
 
   const bestTradeExactIn = useTradeExactIn(
     inputCurrency,
@@ -404,10 +401,6 @@ export default function ExchangePage({ initialCurrency }) {
   const inverseRateOutputSymbol = rateOp === RATE_OP_DIV ? outputSymbol : inputSymbol
   const inverseRate = flipRate(rateRaw)
 
-  useEffect(() => {
-    setSavedRate(rateFormatted)
-  }, [rateFormatted])
-
   // validate + parse independent value
   const [independentError, setIndependentError] = useState()
   useEffect(() => {
@@ -441,10 +434,6 @@ export default function ExchangePage({ initialCurrency }) {
         setInputError(t('insufficientBalance'))
       } else {
         setInputError(null)
-        setShowUnlock(false)
-      }
-      return () => {
-        setInputError()
         setShowUnlock(false)
       }
     }
