@@ -141,8 +141,10 @@ export function OrderCard(props) {
     if (virtualRateFromTo?.gt(ethers.constants.Zero)) {
       executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
         ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
-    } else {
+    } else if (virtualRateFromTo) {
       executionRateText = 'Execution rate: never executes'
+    } else {
+      executionRateText = ''
     }
 
     tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
