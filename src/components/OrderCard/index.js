@@ -113,38 +113,42 @@ export function OrderCard(props) {
 
   const gasInInputTokens = useTradeExactIn('ETH', amountFormatter(requiredGas, 18, 18), inputToken)
 
-  const [virtualRateFromTo, virtualRateToFrom] = useMemo(() => {
-    if (!gasPrice) return [undefined, undefined]
+  let tooltipText = ''
+  let executionRateText = ''
 
-    let usedInput
+  try {
+    const [virtualRateFromTo, virtualRateToFrom] = useMemo(() => {
+      if (!gasPrice) return [undefined, undefined]
 
-    try {
-      if (inputToken === 'ETH') {
-        usedInput = requiredGas
-      } else if (!gasInInputTokens || !requiredGas) {
-        return [undefined, undefined]
-      } else {
-        usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
-      }
+      let usedInput
 
-      return [
-        getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
-        getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
-      ]
-    } catch { return [undefined, undefined] }
-  }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
+      try {
+        if (inputToken === 'ETH') {
+          usedInput = requiredGas
+        } else if (!gasInInputTokens || !requiredGas) {
+          return [undefined, undefined]
+        } else {
+          usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
+        }
 
-  let executionRateText
+        return [
+          getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
+          getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
+        ]
+      } catch { return [undefined, undefined] }
+    }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
 
-  if (virtualRateFromTo?.gt(ethers.constants.Zero)) {
-    executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
-      ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
-  } else {
-    executionRateText = 'Execution rate: never executes'
+    if (virtualRateFromTo?.gt(ethers.constants.Zero)) {
+      executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
+        ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
+    } else {
+      executionRateText = 'Execution rate: never executes'
+    }
+
+    tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
+  } catch (e) {
+    console.warn('Error computing virtual rate', e)
   }
-
-  const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
-
   return (
     <Order className={`order ${order.status}`}>
       <div className="tokens">
