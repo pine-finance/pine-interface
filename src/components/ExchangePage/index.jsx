@@ -418,6 +418,16 @@ function useSavedOrders(account, chainId, uniswapEXContract, multicallContract, 
   return state
 }
 
+function safeParseUnits(number, units) {
+  try {
+    return ethers.utils.parseUnits(number, units)
+  } catch {
+    const margin = units * 8
+    const decimals = ethers.utils.parseUnits(number, margin)
+    return decimals.div(ethers.utils.bigNumberify(10).pow(margin - units))
+  }
+}
+
 export default function ExchangePage({ initialCurrency }) {
   const { t } = useTranslation()
   const { account, library, chainId } = useWeb3React()
@@ -495,7 +505,7 @@ export default function ExchangePage({ initialCurrency }) {
 
   let outputValueFormatted
   let outputValueParsed
-  let rateRaw = savedRate ? ethers.utils.bigNumberify(ethers.utils.parseUnits(savedRate, 18)) : ''
+  let rateRaw = savedRate ? safeParseUnits(savedRate, 18) : ''
 
   const bestTradeExactIn = useTradeExactIn(
     inputCurrency,
@@ -526,7 +536,7 @@ export default function ExchangePage({ initialCurrency }) {
         outputValueParsed = ''
         outputValueFormatted = ''
       } else {
-        rateRaw = ethers.utils.bigNumberify(ethers.utils.parseUnits(inputRateValue, 18))
+        rateRaw = safeParseUnits(inputRateValue, 18)
         outputValueParsed = applyExchangeRateTo(
           inputValueParsed,
           rateRaw,
