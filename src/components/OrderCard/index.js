@@ -64,8 +64,8 @@ export function OrderCard(props) {
 
   const order = props.data
 
-  const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.inputToken
-  const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.outputToken
+  const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.inputToken)
+  const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.outputToken)
 
   const { symbol: fromSymbol, decimals: fromDecimals } = useTokenDetails(inputToken)
   const { symbol: toSymbol, decimals: toDecimals } = useTokenDetails(outputToken)
