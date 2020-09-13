@@ -28,7 +28,6 @@ import {
 } from '../../contexts/Transactions'
 import { useAddressBalance } from '../../contexts/Balances'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
-import { useAddressAllowance } from '../../contexts/Allowances'
 import { useTradeExactIn } from '../../hooks/trade'
 import { ETH_ADDRESS, LIMIT_ORDER_MODULE_ADDRESSES, ORDER_GRAPH } from '../../constants'
 import { getExchangeRate } from '../../utils/rate'
@@ -466,13 +465,10 @@ export default function ExchangePage({ initialCurrency }) {
   const swapType = getSwapType(inputCurrency, outputCurrency)
 
   // get decimals and exchange address for each of the currency types
-  const { symbol: inputSymbol, decimals: inputDecimals, exchangeAddress: inputExchangeAddress } = useTokenDetails(
+  const { symbol: inputSymbol, decimals: inputDecimals } = useTokenDetails(
     inputCurrency
   )
   const { symbol: outputSymbol, decimals: outputDecimals } = useTokenDetails(outputCurrency)
-
-  // get input allowance
-  const inputAllowance = useAddressAllowance(account, inputCurrency, inputExchangeAddress)
 
   // get balances for each of the currency types
   const inputBalance = useAddressBalance(account, inputCurrency)
@@ -545,7 +541,6 @@ export default function ExchangePage({ initialCurrency }) {
           false
         )
       }
-
       break
     case INPUT:
       outputValueParsed = bestTradeExactIn
@@ -598,7 +593,7 @@ export default function ExchangePage({ initialCurrency }) {
     }
   }, [independentValue, independentDecimals, t])
 
-  // validate input allowance + balance
+  // validate input balance
   const [showUnlock, setShowUnlock] = useState(false)
   useEffect(() => {
     const inputValueCalculation = inputValueParsed
@@ -614,7 +609,7 @@ export default function ExchangePage({ initialCurrency }) {
         setShowUnlock(false)
       }
     }
-  }, [inputBalance, inputCurrency, inputAllowance, t, inputValueParsed])
+  }, [inputBalance, inputCurrency, t, inputValueParsed])
 
   // calculate dependent value
   useEffect(() => {
