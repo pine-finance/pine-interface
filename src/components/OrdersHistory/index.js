@@ -12,7 +12,7 @@ export function OrdersHistory() {
     <>
       <p style={{ marginTop: '40px', fontSize: '24px' }}>History</p>
       {orders.map(order => (
-        <OrderCard key={order.id} data={{ order }} />
+        <OrderCard key={order.id} data={order} />
       ))}
     </>
   ) : null
