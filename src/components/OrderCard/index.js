@@ -134,8 +134,14 @@ export function OrderCard(props) {
     } catch { return [undefined, undefined] }
   }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
 
-  const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
-   ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
+  let executionRateText
+
+  if (virtualRateFromTo?.gt(ethers.constants.Zero)) {
+    executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
+      ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
+  } else {
+    executionRateText = 'Execution rate: never executes'
+  }
 
   const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
 
