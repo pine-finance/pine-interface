@@ -299,10 +299,6 @@ export default function ExchangePage({ initialCurrency }) {
   const [inputError, setInputError] = useState()
 
   const addTransaction = useTransactionAdder()
-  // analytics
-  useEffect(() => {
-    ReactGA.pageview(window.location.pathname + window.location.search)
-  }, [])
 
   // get swap type from the currency types
   const swapType = getSwapType(inputCurrency, outputCurrency)
