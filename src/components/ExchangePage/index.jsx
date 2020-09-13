@@ -903,12 +903,12 @@ export default function ExchangePage({ initialCurrency }) {
               {
                 <div>
                   {orders.map(order => (
-                    <OrderCard key={order.witness} data={{ order: order }} />
+                    <OrderCard key={order.witness} data={order} />
                   ))}
                 </div>
               }
             </>
-            <OrdersHistory />
+            {/* <OrdersHistory /> */}
           </>
         )}
       </>

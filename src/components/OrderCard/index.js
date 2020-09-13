@@ -62,7 +62,7 @@ export function OrderCard(props) {
   const { t } = useTranslation()
   const { chainId } = useWeb3React()
 
-  const order = props.data.order
+  const order = props.data
 
   const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.inputToken
   const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : order.outputToken
