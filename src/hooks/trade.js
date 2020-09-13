@@ -70,7 +70,7 @@ function useAllCommonPairs(currencyA, currencyB) {
 export function useTradeExactIn(currencyAddressIn, currencyValueIn, currencyAddressOut) {
   const currencyIn = useTokenDetails(currencyAddressIn)
   const currencyOutDetail = useTokenDetails(currencyAddressOut)
-  const currencyOut = currencyAddressOut
+  const currencyOut = currencyAddressOut && currencyOutDetail && currencyOutDetail.decimals
     ? currencyAddressOut === 'ETH'
       ? ETHER
       : new Token(
