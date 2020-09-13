@@ -1,4 +1,5 @@
 import { Token, ChainId, WETH } from 'uniswap-v2-sdk'
+import { ethers } from 'ethers'
 
 // @TODO: we should test fortmatic, portis, walletconnect, walletlink before adding
 import { injected, fortmatic } from '../connectors'
@@ -41,6 +42,8 @@ export const UNISWAPV2_ADDRESSES = {
     FACTORY: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
   }
 }
+
+export const GENERIC_GAS_LIMIT_ORDER_EXECUTE = ethers.utils.bigNumberify(400000)
 
 export const ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 

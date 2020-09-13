@@ -14,6 +14,7 @@ import TokensContextProvider from './contexts/Tokens'
 import BalancesContextProvider from './contexts/Balances'
 import AllowancesContextProvider from './contexts/Allowances'
 import AllBalancesContextProvider from './contexts/AllBalances'
+import GasPricesContextProvider from './contexts/GasPrice'
 import MulticallUpdater from './state/multicall/updater'
 import { NetworkContextName } from './constants'
 
@@ -45,7 +46,11 @@ function ContextProviders({ children }) {
           <TokensContextProvider>
             <BalancesContextProvider>
               <AllBalancesContextProvider>
-                <AllowancesContextProvider>{children}</AllowancesContextProvider>
+                <AllowancesContextProvider>
+                  <GasPricesContextProvider>
+                    {children}
+                  </GasPricesContextProvider>
+                </AllowancesContextProvider>
               </AllBalancesContextProvider>
             </BalancesContextProvider>
           </TokensContextProvider>

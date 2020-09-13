@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useWeb3React } from '@web3-react/core'
 
-import { OrderCard } from '../OrderCard'
+import { PastOrderCard } from '../PastOrderCard'
 import { isAddress } from '../../utils'
 import { ORDER_GRAPH } from '../../constants'
 
@@ -12,7 +12,7 @@ export function OrdersHistory() {
     <>
       <p style={{ marginTop: '40px', fontSize: '24px' }}>History</p>
       {orders.map(order => (
-        <OrderCard key={order.id} data={order} />
+        <PastOrderCard key={order.id} data={order} />
       ))}
     </>
   ) : null
