@@ -15,16 +15,13 @@ import SVGDiv from '../../assets/svg/SVGDiv'
 import { amountFormatter } from '../../utils'
 import { useUniswapExContract } from '../../hooks'
 import { useTokenDetails } from '../../contexts/Tokens'
-import {
-  ACTION_PLACE_ORDER,
-  useTransactionAdder
-} from '../../contexts/Transactions'
+import { ACTION_PLACE_ORDER, useTransactionAdder } from '../../contexts/Transactions'
 import { useAddressBalance } from '../../contexts/Balances'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
 import { useTradeExactIn } from '../../hooks/trade'
 import { ETH_ADDRESS, LIMIT_ORDER_MODULE_ADDRESSES, GENERIC_GAS_LIMIT_ORDER_EXECUTE } from '../../constants'
 import { getExchangeRate } from '../../utils/rate'
-import { useGasPrice } from '../../contexts/GasPrice'
+import { useGasPrice } from '../../contexts/GasPrice'
 
 import './ExchangePage.css'
 
@@ -306,9 +303,7 @@ export default function ExchangePage({ initialCurrency }) {
   const swapType = getSwapType(inputCurrency, outputCurrency)
 
   // get decimals and exchange address for each of the currency types
-  const { symbol: inputSymbol, decimals: inputDecimals } = useTokenDetails(
-    inputCurrency
-  )
+  const { symbol: inputSymbol, decimals: inputDecimals } = useTokenDetails(inputCurrency)
   const { symbol: outputSymbol, decimals: outputDecimals } = useTokenDetails(outputCurrency)
 
   // get balances for each of the currency types
@@ -322,7 +317,7 @@ export default function ExchangePage({ initialCurrency }) {
     : ''
 
   // compute useful transforms of the data above
-  const independentDecimals = independentField === INPUT ? inputDecimals : outputDecimals
+  const independentDecimals = independentField === INPUT || independentField === RATE ? inputDecimals : outputDecimals
   const dependentDecimals = independentField === OUTPUT ? inputDecimals : outputDecimals
 
   // declare/get parsed and formatted versions of input/output values
@@ -418,13 +413,9 @@ export default function ExchangePage({ initialCurrency }) {
   }
 
   const realInputValue = usedInput && inputValueParsed?.sub(usedInput)
-  const executionRate = realInputValue && getExchangeRate(
-    realInputValue,
-    inputDecimals,
-    outputValueParsed,
-    outputDecimals,
-    rateOp === RATE_OP_DIV
-  )
+  const executionRate =
+    realInputValue &&
+    getExchangeRate(realInputValue, inputDecimals, outputValueParsed, outputDecimals, rateOp === RATE_OP_DIV)
 
   const limitSlippage = ethers.utils
     .bigNumberify(SLIPPAGE_WARNING)
@@ -665,28 +656,34 @@ export default function ExchangePage({ initialCurrency }) {
         }}
       />
       <OversizedPanel>
-      <ExchangeRateWrapper
+        <ExchangeRateWrapper
           onClick={() => {
             setInverted(inverted => !inverted)
           }}
         >
-          <ExchangeRate>Execution rate at {gasPrice ? amountFormatter(gasPrice, 9, 0, false) : '...'} GWEI</ExchangeRate>
+          <ExchangeRate>
+            Execution rate at {gasPrice ? amountFormatter(gasPrice, 9, 0, false) : '...'} GWEI
+          </ExchangeRate>
           {executionRateNegative ? (
             'Never executes'
+          ) : rateOp !== RATE_OP_DIV ? (
+            <span>
+              {executionRate
+                ? `1 ${inputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${outputSymbol}`
+                : ' - '}
+            </span>
+          ) : rateOp !== RATE_OP_DIV ? (
+            <span>
+              {executionRate
+                ? `1 ${inputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${outputSymbol}`
+                : ' - '}
+            </span>
           ) : (
-            rateOp !== RATE_OP_DIV ? (
-              <span>
-                {executionRate
-                  ? `1 ${inputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${outputSymbol}`
-                  : ' - '}
-              </span>
-            ) : (
-              <span>
-                {executionRate
-                  ? `1 ${outputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${inputSymbol}`
-                  : ' - '}
-              </span>
-            )
+            <span>
+              {executionRate
+                ? `1 ${outputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${inputSymbol}`
+                : ' - '}
+            </span>
           )}
         </ExchangeRateWrapper>
         <DownArrowBackground>
@@ -766,11 +763,11 @@ export default function ExchangePage({ initialCurrency }) {
       )}
       {executionRateWarning && (
         <div className="slippage-warning">
-        <span role="img" aria-label="warning">
-          ⚠️
-        </span>
+          <span role="img" aria-label="warning">
+            ⚠️
+          </span>
           Order too small, extreme execution rate
-      </div>
+        </div>
       )}
     </>
   )
