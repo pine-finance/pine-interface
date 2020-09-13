@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ethers } from 'ethers'
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
 import { useWeb3React } from '@web3-react/core'
-
+import Tooltip from '@reach/tooltip'
 import { getEtherscanLink } from '../../utils'
 import { CurrencySelect, Aligner, StyledTokenName } from '../CurrencyInputPanel'
 import TokenLogo from '../TokenLogo'
 import ArrowDown from '../../assets/svg/SVGArrowDown'
 import { amountFormatter } from '../../utils'
 import { useUniswapExContract } from '../../hooks'
+import { useTradeExactIn} from '../../hooks/trade'
 import { useTokenDetails } from '../../contexts/Tokens'
+import { useGasPrice } from '../../contexts/GasPrice'
 import {
   ACTION_PLACE_ORDER,
   ACTION_CANCEL_ORDER,
@@ -97,21 +99,43 @@ export function OrderCard(props) {
       })
   }
 
-  const cancelled = order.status === 'cancelled'
-  const executed = order.status === 'executed'
-  const bought = ethers.utils.bigNumberify(executed ? order.bought : 0)
   const inputAmount = ethers.utils.bigNumberify(order.inputAmount !== '0' ? order.inputAmount : order.creationAmount)
   const minReturn = ethers.utils.bigNumberify(order.minReturn)
 
-  let explorerLink
-  if (cancelled || executed) {
-    explorerLink = getEtherscanLink(chainId, cancelled ? order.cancelledTxHash : order.executedTxHash, 'transaction')
-  } else {
-    explorerLink = last ? getEtherscanLink(chainId, last.response.hash, 'transaction') : undefined
-  }
+  const explorerLink = last ? getEtherscanLink(chainId, last.response.hash, 'transaction') : undefined
 
   const rateFromTo = getExchangeRate(inputAmount, fromDecimals, minReturn, toDecimals, false)
   const rateToFrom = getExchangeRate(inputAmount, fromDecimals, minReturn, toDecimals, true)
+
+  const gasPrice = useGasPrice()
+  const gasLimit = ethers.utils.bigNumberify(350000)
+  const requiredGas = gasPrice?.mul(gasLimit)
+
+  const gasInInputTokens = useTradeExactIn('ETH', amountFormatter(requiredGas, 18, 18), inputToken)
+
+  const [virtualRateFromTo, virtualRateToFrom] = useMemo(() => {
+    if (!gasPrice) return [undefined, undefined]
+
+    let usedInput
+
+    if (inputToken === 'ETH') {
+      usedInput = requiredGas
+    } else if (!gasInInputTokens) {
+      return [undefined, undefined]
+    } else {
+      usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
+    }
+
+    return [
+      getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
+      getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
+    ]
+  }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
+
+  const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
+   ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
+
+  const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 0) : '...'} GWEI`
 
   return (
     <Order className={`order ${order.status}`}>
@@ -132,65 +156,43 @@ export function OrderCard(props) {
           </Aligner>
         </CurrencySelect>
         <Spacer />
-        {!executed && !cancelled && (
-          <CurrencySelect selected={true} disabled={canceling} onClick={() => onCancel(order, pending)}>
-            <CancelButton>{canceling ? 'Cancelling ...' : t('cancel')}</CancelButton>
-          </CurrencySelect>
-        )}
+        <CurrencySelect selected={true} disabled={canceling} onClick={() => onCancel(order, pending)}>
+          <CancelButton>{canceling ? 'Cancelling ...' : t('cancel')}</CancelButton>
+        </CurrencySelect>
       </div>
-      {!executed && !cancelled && (
-        <>
-          {' '}
-          <p>
-            {`Sell: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
-          </p>
-          <p>
-            {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
-          </p>
-          <p>
-            {`Rate: ${amountFormatter(rateFromTo, 18, 6)}`} {fromSymbol}/{toSymbol} -{' '}
-            {amountFormatter(rateToFrom, 18, 6)} {toSymbol}/{fromSymbol}
-          </p>
-          <p>
-            {last && (
-              <a rel="noopener noreferrer" target="_blank" href={explorerLink} className="order-link">
-                Pending transaction...
-              </a>
-            )}
-          </p>
-        </>
-      )}
-      {executed && (
-        <>
-          <p>
-            {`Sold: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
-          </p>
-          <p>
-            {`Expected: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
-          </p>
-          <p>
-            {`Received: ${amountFormatter(bought, toDecimals, 6)}`} {toSymbol}
-          </p>
-          <p>{`Date: ${new Date(order.updatedAt * 1000).toLocaleDateString()}`}</p>
+      {' '}
+      <p>
+        {`Sell: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
+      </p>
+      <p>
+        {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
+      </p>
+      <p>
+        {`Rate: ${amountFormatter(rateFromTo, 18, 3)}`} {fromSymbol}/{toSymbol} -{' '}
+        {amountFormatter(rateToFrom, 18, 3)} {toSymbol}/{fromSymbol}
+      </p>
+      <Tooltip
+        label={tooltipText}
+        style={{
+          background: 'hsla(0, 0%, 0%, 0.75)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '24px',
+          padding: '0.5em 1em',
+          marginTop: '-64px'
+        }}
+      >
+        <p>
+          {executionRateText}
+        </p>
+      </Tooltip>
+      <p>
+        {last && (
           <a rel="noopener noreferrer" target="_blank" href={explorerLink} className="order-link">
-            Executed
+            Pending transaction...
           </a>
-        </>
-      )}
-      {cancelled && (
-        <>
-          <p>
-            {`Sell: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
-          </p>
-          <p>
-            {`Expected: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
-          </p>
-          <p>{`Date: ${new Date(order.updatedAt * 1000).toLocaleDateString()}`}</p>
-          <a rel="noopener noreferrer" target="_blank" href={explorerLink} className="order-link">
-            Cancelled
-          </a>
-        </>
-      )}
+        )}
+      </p>
     </Order>
   )
 }

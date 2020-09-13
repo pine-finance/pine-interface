@@ -95,34 +95,17 @@ export function useTradeExactIn(currencyAddressIn, currencyValueIn, currencyAddr
 
   return useMemo(() => {
     if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-      const tradeRes = Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, {
-        maxHops: 3,
-        maxNumResults: 1
-      })[0]
+      try {
+        const tradeRes = Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, {
+          maxHops: 3,
+          maxNumResults: 1
+        })[0]
 
-      return tradeRes ? tradeRes : null
+        return tradeRes ? tradeRes : null
+      } catch {}
     }
     return null
   }, [allowedPairs, currencyAmountIn, currencyOut])
-}
-
-/**
- * Returns the best trade for the token in to the exact amount of token out
- */
-export function useTradeExactOut(currencyInAddress, currentOutAddress, currencyAmountOut) {
-  const currencyIn = useTokenDetails(currencyInAddress)
-  const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut.currency)
-
-  return useMemo(() => {
-    if (currencyIn && currencyAmountOut && allowedPairs.length > 0) {
-      const tradeRes = Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, {
-        maxHops: 3,
-        maxNumResults: 1
-      })[0]
-      return tradeRes ? tradeRes : null
-    }
-    return null
-  }, [allowedPairs, currencyIn, currencyAmountOut])
 }
 
 export function usePairs(currencies) {
