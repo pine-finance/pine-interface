@@ -425,7 +425,6 @@ export default function ExchangePage({ initialCurrency }) {
     outputDecimals,
     rateOp === RATE_OP_DIV
   )
-  const executionRateInverted = executionRate && flipRate(executionRate)
 
   const limitSlippage = ethers.utils
     .bigNumberify(SLIPPAGE_WARNING)
@@ -684,7 +683,7 @@ export default function ExchangePage({ initialCurrency }) {
             ) : (
               <span>
                 {executionRate
-                  ? `1 ${outputSymbol} = ${amountFormatter(executionRateInverted, 18, 4, false)} ${inputSymbol}`
+                  ? `1 ${outputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${inputSymbol}`
                   : ' - '}
               </span>
             )
