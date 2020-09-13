@@ -132,8 +132,8 @@ export function OrderCard(props) {
     ]
   }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
 
-  const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
-   ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
+  const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 6) : '...'} ${fromSymbol}/${toSymbol} -  
+   ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 6) : '...'} ${toSymbol}/${fromSymbol}* `
 
   const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
 
@@ -168,8 +168,8 @@ export function OrderCard(props) {
         {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
       </p>
       <p>
-        {`Rate: ${amountFormatter(rateFromTo, 18, 3)}`} {fromSymbol}/{toSymbol} -{' '}
-        {amountFormatter(rateToFrom, 18, 3)} {toSymbol}/{fromSymbol}
+        {`Rate: ${amountFormatter(rateFromTo, 18, 6)}`} {fromSymbol}/{toSymbol} -{' '}
+        {amountFormatter(rateToFrom, 18, 6)} {toSymbol}/{fromSymbol}
       </p>
       <Tooltip
         label={tooltipText}
