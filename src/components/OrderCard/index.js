@@ -19,7 +19,7 @@ import {
   useTransactionAdder,
   useOrderPendingState
 } from '../../contexts/Transactions'
-import { ETH_ADDRESS } from '../../constants'
+import { ETH_ADDRESS, GENERIC_GAS_LIMIT_ORDER_EXECUTE } from '../../constants'
 import { getExchangeRate } from '../../utils/rate'
 
 import './OrderCard.css'
@@ -108,7 +108,7 @@ export function OrderCard(props) {
   const rateToFrom = getExchangeRate(inputAmount, fromDecimals, minReturn, toDecimals, true)
 
   const gasPrice = useGasPrice()
-  const gasLimit = ethers.utils.bigNumberify(350000)
+  const gasLimit = GENERIC_GAS_LIMIT_ORDER_EXECUTE
   const requiredGas = gasPrice?.mul(gasLimit)
 
   const gasInInputTokens = useTradeExactIn('ETH', amountFormatter(requiredGas, 18, 18), inputToken)
@@ -135,7 +135,7 @@ export function OrderCard(props) {
   const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
    ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
 
-  const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 0) : '...'} GWEI`
+  const tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
 
   return (
     <Order className={`order ${order.status}`}>
