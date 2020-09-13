@@ -118,18 +118,20 @@ export function OrderCard(props) {
 
     let usedInput
 
-    if (inputToken === 'ETH') {
-      usedInput = requiredGas
-    } else if (!gasInInputTokens) {
-      return [undefined, undefined]
-    } else {
-      usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
-    }
+    try {
+      if (inputToken === 'ETH') {
+        usedInput = requiredGas
+      } else if (!gasInInputTokens || !requiredGas) {
+        return [undefined, undefined]
+      } else {
+        usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
+      }
 
-    return [
-      getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
-      getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
-    ]
+      return [
+        getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
+        getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
+      ]
+    } catch { return [undefined, undefined] }
   }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
 
   const executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  

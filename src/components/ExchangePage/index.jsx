@@ -22,8 +22,9 @@ import {
 import { useAddressBalance } from '../../contexts/Balances'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
 import { useTradeExactIn } from '../../hooks/trade'
-import { ETH_ADDRESS, LIMIT_ORDER_MODULE_ADDRESSES } from '../../constants'
+import { ETH_ADDRESS, LIMIT_ORDER_MODULE_ADDRESSES, GENERIC_GAS_LIMIT_ORDER_EXECUTE } from '../../constants'
 import { getExchangeRate } from '../../utils/rate'
+import { useGasPrice } from '../../contexts/GasPrice'
 
 import './ExchangePage.css'
 
@@ -40,6 +41,7 @@ const TOKEN_TO_TOKEN = 2
 
 // Denominated in bips
 const SLIPPAGE_WARNING = '30' // [30+%
+const EXECUTION_WARNING = '3' // [10+%
 
 const RATE_OP_MULT = 'x'
 const RATE_OP_DIV = '/'
@@ -401,8 +403,45 @@ export default function ExchangePage({ initialCurrency }) {
   const inverseRateOutputSymbol = rateOp === RATE_OP_DIV ? outputSymbol : inputSymbol
   const inverseRate = flipRate(rateRaw)
 
+  // load required gas
+  const gasPrice = useGasPrice()
+  const gasLimit = GENERIC_GAS_LIMIT_ORDER_EXECUTE
+  const requiredGas = gasPrice?.mul(gasLimit)
+
+  const gasInInputTokens = useTradeExactIn('ETH', amountFormatter(requiredGas, 18, 18), inputCurrency)
+
+  let usedInput
+  if (inputSymbol === 'ETH') {
+    usedInput = requiredGas
+  } else if (gasInInputTokens) {
+    usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), inputDecimals)
+  }
+
+  const realInputValue = usedInput && inputValueParsed?.sub(usedInput)
+  const executionRate = realInputValue && getExchangeRate(
+    realInputValue,
+    inputDecimals,
+    outputValueParsed,
+    outputDecimals,
+    rateOp === RATE_OP_DIV
+  )
+  const executionRateInverted = executionRate && flipRate(executionRate)
+
+  const limitSlippage = ethers.utils
+    .bigNumberify(SLIPPAGE_WARNING)
+    .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(16)))
+
+  const limitExecution = ethers.utils
+    .bigNumberify(EXECUTION_WARNING)
+    .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(16)))
+
   // validate + parse independent value
   const [independentError, setIndependentError] = useState()
+
+  const executionRateDelta = executionRate && exchangeRateDiff(executionRate, rateRaw)
+  const executionRateNegative = executionRate?.lt(ethers.constants.Zero)
+  const executionRateWarning = executionRateNegative || executionRateDelta?.abs()?.gt(limitExecution)
+
   useEffect(() => {
     if (independentValue && (independentDecimals || independentDecimals === 0)) {
       try {
@@ -466,9 +505,6 @@ export default function ExchangePage({ initialCurrency }) {
       ? exchangeRateDiff(inverseRate, exchangeRateInverted)
       : exchangeRateDiff(rateRaw, exchangeRate)
 
-  const limitSlippage = ethers.utils
-    .bigNumberify(SLIPPAGE_WARNING)
-    .mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(16)))
   const highSlippageWarning = rateDelta && rateDelta.lt(ethers.utils.bigNumberify(0).sub(limitSlippage))
   const rateDeltaFormatted = amountFormatter(rateDelta, 16, 2, true)
 
@@ -630,6 +666,30 @@ export default function ExchangePage({ initialCurrency }) {
         }}
       />
       <OversizedPanel>
+      <ExchangeRateWrapper
+          onClick={() => {
+            setInverted(inverted => !inverted)
+          }}
+        >
+          <ExchangeRate>Execution rate at {gasPrice ? amountFormatter(gasPrice, 9, 0, false) : '...'} GWEI</ExchangeRate>
+          {executionRateNegative ? (
+            'Never executes'
+          ) : (
+            rateOp !== RATE_OP_DIV ? (
+              <span>
+                {executionRate
+                  ? `1 ${inputSymbol} = ${amountFormatter(executionRate, 18, 4, false)} ${outputSymbol}`
+                  : ' - '}
+              </span>
+            ) : (
+              <span>
+                {executionRate
+                  ? `1 ${outputSymbol} = ${amountFormatter(executionRateInverted, 18, 4, false)} ${inputSymbol}`
+                  : ' - '}
+              </span>
+            )
+          )}
+        </ExchangeRateWrapper>
         <DownArrowBackground>
           <DownArrow
             onClick={() => {
@@ -685,7 +745,7 @@ export default function ExchangePage({ initialCurrency }) {
         <Button
           disabled={!account || !isValid || customSlippageError === 'invalid'}
           onClick={onPlace}
-          warning={highSlippageWarning || customSlippageError === 'warning'}
+          warning={highSlippageWarning || executionRateWarning || customSlippageError === 'warning'}
         >
           {customSlippageError === 'warning' ? t('placeAnyway') : t('place')}
         </Button>
@@ -704,6 +764,14 @@ export default function ExchangePage({ initialCurrency }) {
           </span>
           {t('highSlippageWarning')}
         </div>
+      )}
+      {executionRateWarning && (
+        <div className="slippage-warning">
+        <span role="img" aria-label="warning">
+          ⚠️
+        </span>
+          Order too small, extreme execution rate
+      </div>
       )}
     </>
   )
