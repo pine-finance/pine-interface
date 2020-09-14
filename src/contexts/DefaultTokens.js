@@ -41,8 +41,14 @@ export const DEFAULT_TOKENS_EXTRA = [
     address: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
     decimals: 18,
     chainId: 1
+  },
+  {
+    name: 'PickleToken',
+    symbol: 'PICKLE',
+    address: '0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5',
+    decimals: 18,
+    chainId: 1
   }
 ]
 
 export const DISABLED_TOKENS = {}
-
