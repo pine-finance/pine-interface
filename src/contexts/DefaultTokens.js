@@ -48,6 +48,13 @@ export const DEFAULT_TOKENS_EXTRA = [
     address: '0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5',
     decimals: 18,
     chainId: 1
+  },
+  {
+    name: 'Aavegotchi GHST Token',
+    symbol: 'GHST',
+    address: '0x3f382dbd960e3a9bbceae22651e88158d2791550',
+    decimals: 18,
+    chainId: 1
   }
 ]
 
