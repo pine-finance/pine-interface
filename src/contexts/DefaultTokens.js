@@ -55,6 +55,13 @@ export const DEFAULT_TOKENS_EXTRA = [
     address: '0x3f382dbd960e3a9bbceae22651e88158d2791550',
     decimals: 18,
     chainId: 1
+  },
+  {
+    name: 'Uniswap (UNI)',
+    symbol: 'UNI',
+    address: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+    decimals: 18,
+    chainId: 1
   }
 ]
 
