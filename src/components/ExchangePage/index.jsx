@@ -340,6 +340,8 @@ export default function ExchangePage({ initialCurrency }) {
     inputValue = ethers.utils.bigNumberify(
       ethers.utils.parseUnits(bestTradeExactIn.inputAmount.toExact(), inputDecimals)
     )
+  } else if (independentField === INPUT && independentValue) {
+    inputValue = ethers.utils.bigNumberify(ethers.utils.parseUnits(independentValue, inputDecimals))
   }
 
   switch (independentField) {
