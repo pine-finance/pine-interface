@@ -10,9 +10,9 @@ import TokenLogo from '../TokenLogo'
 import ArrowDown from '../../assets/svg/SVGArrowDown'
 import { amountFormatter } from '../../utils'
 import { useUniswapExContract } from '../../hooks'
-import { useTradeExactIn} from '../../hooks/trade'
+import { useTradeExactIn } from '../../hooks/trade'
 import { useTokenDetails } from '../../contexts/Tokens'
-import { useGasPrice } from '../../contexts/GasPrice'
+import { useGasPrice } from '../../contexts/GasPrice'
 import {
   ACTION_PLACE_ORDER,
   ACTION_CANCEL_ORDER,
@@ -67,7 +67,8 @@ export function OrderCard(props) {
   const order = props.data
 
   const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.inputToken)
-  const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.outputToken)
+  const outputToken =
+    order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.outputToken)
 
   const { symbol: fromSymbol, decimals: fromDecimals } = useTokenDetails(inputToken)
   const { symbol: toSymbol, decimals: toDecimals } = useTokenDetails(outputToken)
@@ -99,7 +100,9 @@ export function OrderCard(props) {
       })
   }
 
-  const inputAmount = ethers.utils.bigNumberify(order.inputAmount !== '0' ? order.inputAmount : order.creationAmount)
+  const inputAmount = ethers.utils.bigNumberify(
+    order.inputAmount !== '0' || !order.creationAmount ? order.inputAmount : order.creationAmount
+  )
   const minReturn = ethers.utils.bigNumberify(order.minReturn)
 
   const explorerLink = last ? getEtherscanLink(chainId, last.response.hash, 'transaction') : undefined
@@ -125,7 +128,7 @@ export function OrderCard(props) {
       try {
         if (inputToken === 'ETH') {
           usedInput = requiredGas
-        } else if (!gasInInputTokens || !requiredGas) {
+        } else if (!gasInInputTokens || !requiredGas) {
           return [undefined, undefined]
         } else {
           usedInput = ethers.utils.parseUnits(gasInInputTokens.outputAmount.toExact(), fromDecimals)
@@ -135,11 +138,15 @@ export function OrderCard(props) {
           getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, false),
           getExchangeRate(inputAmount.sub(usedInput), fromDecimals, minReturn, toDecimals, true)
         ]
-      } catch { return [undefined, undefined] }
+      } catch {
+        return [undefined, undefined]
+      }
     }, [fromDecimals, inputAmount, minReturn, requiredGas, toDecimals, inputToken, gasInInputTokens, gasPrice])
 
     if (virtualRateFromTo?.gt(ethers.constants.Zero)) {
-      executionRateText = `Execution rate: ${virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'} ${fromSymbol}/${toSymbol} -  
+      executionRateText = `Execution rate: ${
+        virtualRateFromTo ? amountFormatter(virtualRateFromTo, 18, 3) : '...'
+      } ${fromSymbol}/${toSymbol} -
         ${virtualRateToFrom ? amountFormatter(virtualRateToFrom, 18, 3) : '...'} ${toSymbol}/${fromSymbol}* `
     } else if (virtualRateFromTo) {
       executionRateText = 'Execution rate: never executes'
@@ -147,7 +154,9 @@ export function OrderCard(props) {
       executionRateText = ''
     }
 
-    tooltipText = `Required rate to execute order assuming gas price of ${gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'} GWEI`
+    tooltipText = `Required rate to execute order assuming gas price of ${
+      gasPrice ? amountFormatter(gasPrice, 9, 2) : '...'
+    } GWEI`
   } catch (e) {
     console.warn('Error computing virtual rate', e)
   }
@@ -173,8 +182,7 @@ export function OrderCard(props) {
         <CurrencySelect selected={true} disabled={canceling} onClick={() => onCancel(order, pending)}>
           <CancelButton>{canceling ? 'Cancelling ...' : t('cancel')}</CancelButton>
         </CurrencySelect>
-      </div>
-      {' '}
+      </div>{' '}
       <p>
         {`Sell: ${amountFormatter(inputAmount, fromDecimals, 6)}`} {fromSymbol}
       </p>
@@ -182,8 +190,8 @@ export function OrderCard(props) {
         {`Receive: ${amountFormatter(minReturn, toDecimals, 6)}`} {toSymbol}
       </p>
       <p>
-        {`Rate: ${amountFormatter(rateFromTo, 18, 6)}`} {fromSymbol}/{toSymbol} -{' '}
-        {amountFormatter(rateToFrom, 18, 6)} {toSymbol}/{fromSymbol}
+        {`Rate: ${amountFormatter(rateFromTo, 18, 6)}`} {fromSymbol}/{toSymbol} - {amountFormatter(rateToFrom, 18, 6)}{' '}
+        {toSymbol}/{fromSymbol}
       </p>
       <Tooltip
         label={tooltipText}
@@ -196,9 +204,7 @@ export function OrderCard(props) {
           marginTop: '-64px'
         }}
       >
-        <p>
-          {executionRateText}
-        </p>
+        <p>{executionRateText}</p>
       </Tooltip>
       <p>
         {last && (
