@@ -49,7 +49,8 @@ export function PastOrderCard(props) {
   const order = props.data
 
   const inputToken = order.inputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.inputToken)
-  const outputToken = order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.outputToken)
+  const outputToken =
+    order.outputToken === ETH_ADDRESS.toLowerCase() ? 'ETH' : ethers.utils.getAddress(order.outputToken)
 
   const { symbol: fromSymbol, decimals: fromDecimals } = useTokenDetails(inputToken)
   const { symbol: toSymbol, decimals: toDecimals } = useTokenDetails(outputToken)
@@ -57,10 +58,14 @@ export function PastOrderCard(props) {
   const cancelled = order.status === 'cancelled'
   const executed = order.status === 'executed'
   const bought = ethers.utils.bigNumberify(executed ? order.bought : 0)
-  const inputAmount = ethers.utils.bigNumberify(order.inputAmount !== '0' ? order.inputAmount : order.creationAmount)
+  const inputAmount = ethers.utils.bigNumberify(order.inputAmount)
   const minReturn = ethers.utils.bigNumberify(order.minReturn)
 
-  const explorerLink = getEtherscanLink(chainId, cancelled ? order.cancelledTxHash : order.executedTxHash, 'transaction')
+  const explorerLink = getEtherscanLink(
+    chainId,
+    cancelled ? order.cancelledTxHash : order.executedTxHash,
+    'transaction'
+  )
 
   return (
     <Order className={`order ${order.status}`}>
