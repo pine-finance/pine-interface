@@ -159,15 +159,24 @@ const IconWrapper = styled.div`
 `
 
 const WalletAction = styled.button`
-  width: fit-content;
-  font-weight: 400;
-  margin-left: 8px;
   font-size: 0.825rem;
-  padding: 4px 6px;
-  :hover {
-    cursor: pointer;
-    text-decoration: underline;
-  }
+  font-weight: 400;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 1rem;
+  color: #000000;
+  height: 2rem;
+  border: 1px solid #01796f;
+  border-radius: 2.5rem;
+  background-color: #fafafa;
+  outline: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 `
 
 const ChangeAction = styled.button`
