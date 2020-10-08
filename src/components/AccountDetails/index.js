@@ -170,7 +170,7 @@ const WalletAction = styled.button`
   height: 2rem;
   border: 1px solid #01796f;
   border-radius: 2.5rem;
-  background-color: #fafafa;
+  background-color: #fff;
   outline: none;
   cursor: pointer;
   -webkit-user-select: none;
@@ -191,7 +191,7 @@ const ChangeAction = styled.button`
   height: 2rem;
   border: 1px solid #01796f;
   border-radius: 2.5rem;
-  background-color: #fafafa;
+  background-color: #fff;
   outline: none;
   cursor: pointer;
   -webkit-user-select: none;
