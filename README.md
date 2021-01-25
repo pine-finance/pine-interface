@@ -95,3 +95,5 @@ If you want to add your token reach out us.
 - [Twitter](https://twitter.com/pine_eth)
 
 Repo forked and modified from [Uniswap](https://github.com/Uniswap/uniswap-frontend).
+
+Donate: [Gitcoin](https://gitcoin.co/grants/765/pine-finance-ex-uniswapex-v2)
