@@ -81,7 +81,11 @@ export default function Provider({ children }) {
             .concat(DEFAULT_TOKENS_EXTRA)
             .reduce(
               (tokenMap, token) => {
-                if (tokenMap[token.chainId][token.address] !== undefined) throw Error('Duplicate tokens.')
+                if (tokenMap[token.chainId][token.address] !== undefined) {
+                  console.warn('Duplicate tokens.')
+                  return tokenMap
+                }
+
                 return {
                   ...tokenMap,
                   [token.chainId]: {
